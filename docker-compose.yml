@@ -1,0 +1,89 @@
+version: '3.9'
+
+
+services:
+  database:
+    image: postgres:16.0
+    restart: always
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGPORT: ${PGPORT}
+
+    ports:
+      - "888:${PGPORT}"
+
+    volumes:
+      - ./backend/databaseData:/var/lib/postgresql/data
+
+    networks:
+      - marketplace
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      start_period: 18s
+      retries: 8
+      interval: 8s
+
+  entry:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    command: alembic upgrade head
+
+    networks:
+      - marketplace
+
+    depends_on: 
+      database:
+        condition: service_healthy
+
+  host:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    restart: always
+    command: python -u host.py
+
+    networks:
+      - marketplace
+    
+    depends_on: 
+      - entry
+  
+  invoicesdaemon:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    restart: always
+    command: python -u handleInvoicesDaemon.py
+
+    networks:
+      - marketplace
+
+    depends_on: 
+      - entry
+  
+  paymentsdaemon:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    restart: always
+    command: python -u handlePaymentsDaemon.py
+
+    networks:
+      - marketplace
+
+    depends_on: 
+      - entry 
+  
+
+networks:
+  marketplace:
+    external: true
