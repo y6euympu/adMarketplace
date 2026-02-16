@@ -5,6 +5,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from typing import Callable, Dict, Any, Awaitable
 
 from .handlers import handlers
+from .misc import registr
 
 from core.config import settings
 from core.container import Container
@@ -31,9 +32,12 @@ class Gateway():
             data: Dict[str, Any]
         ) -> None:
             event_from_user: User = data['event_from_user']
-            _user = await container.participant_repository.getEntryByEntity(
+
+            participant = await container.participant_repository.getEntryByEntity(
                 event_from_user.id
             )
+            if not participant:
+                await registr(event_from_user, participant, container)
 
             data["container"] = container
             await handler(event, data)
