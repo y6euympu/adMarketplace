@@ -1,4 +1,4 @@
-from sqlalchemy import Column, UUID, BigInteger, DateTime, text
+from sqlalchemy import Column, UUID, JSON, DateTime, text
 
 from .mics import Base
 
@@ -11,7 +11,10 @@ class Participant(Base):
         primary_key=True,
         server_default=text("gen_random_uuid()")
     )
-    entity_id = Column(BigInteger)
+    jwt = Column(
+        UUID(False),  server_default=text("gen_random_uuid()")
+    )
+    entity = Column(JSON())
     registration_date = Column(
         DateTime, server_default=text("timezone('utc', now())")
     )
