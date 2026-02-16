@@ -11,7 +11,7 @@ class Gateway:
         self.project.state.container = container
 
     async def host(
-        self, host: str = "localhost", port: int = 8888, reload: bool = False
+        self, host: str = "localhost", port: int = 8080, reload: bool = False
     ) -> None:
         config = uvicorn.Config(
             app=self.project, host=host, port=port, reload=reload
