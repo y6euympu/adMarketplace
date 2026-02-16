@@ -41,6 +41,24 @@ services:
       database:
         condition: service_healthy
 
+
+  backendhost:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    ports:
+      - "8080:8080"
+
+    restart: always
+    command: python -u backendHost.py
+
+    networks:
+      - marketplace
+    
+    depends_on: 
+      - entry
+
   host:
     build:
       context: ./backend

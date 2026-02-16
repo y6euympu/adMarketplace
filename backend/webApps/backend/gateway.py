@@ -2,10 +2,11 @@ from fastapi import FastAPI
 import uvicorn
 
 from core.container import Container
+from core.config import settings
 
 
 class Gateway:
-    def __init__(self, container: Container) -> None:
+    def __init__(self, container: Container, handlers: list) -> None:
         self.project = FastAPI()
         self.project.state.container = container
 
@@ -17,3 +18,6 @@ class Gateway:
         )
         
         await uvicorn.Server(config).serve()
+
+
+gateway = Gateway(container=Container(settings), handlers=handlers)
